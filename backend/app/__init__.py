@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import os
 
 app = Flask(__name__)
@@ -12,10 +13,7 @@ app.config.from_mapping (
 
 db = SQLAlchemy(app)
 
+migrate = Migrate(app, db)
+
 from .api import api
 app.register_blueprint(api)
-
-@app.cli.command("init-db")
-def init_db_command():
-    db.create_all()
-

@@ -7,3 +7,6 @@ api.register_blueprint(users_bp)
 
 from .auth_route import auth_bp
 api.register_blueprint(auth_bp)
+
+from .courses_route import courses_bp
+api.register_blueprint(courses_bp)

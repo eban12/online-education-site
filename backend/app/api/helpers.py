@@ -39,6 +39,7 @@ def build_course_dictionary(course):
         "id": course.id,
         "name": course.name,
         "description": course.description,
+        "course_image": course.course_image,
         "created_at": course.created_at.isoformat(' ', 'minutes'),
         "last_updated": course.last_updated.isoformat(' ', 'minutes'),
         "chapters": [
