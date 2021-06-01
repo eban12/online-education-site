@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 app.config.from_mapping (
     SECRET_KEY = 'secretkey',
-    # SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL").replace('postgres://', 'postgresql://'),
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL").replace('postgres://', 'postgresql://'),
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 )
 
