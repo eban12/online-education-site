@@ -46,3 +46,12 @@ def build_course_dictionary(course):
             {"chapter_id": chapter.id, "chapter_title": chapter.title} for chapter in course.chapters
         ]
     }
+
+def build_instructors_dictionary(instructor):
+    user, inst = instructor
+    return {
+        "instructor_id": user.public_id,
+        "first_name": user.first_name,
+        "last_name":  user.last_name,
+        "profile_image": user.profile_image
+    }
