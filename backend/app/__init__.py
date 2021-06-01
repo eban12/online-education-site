@@ -10,7 +10,7 @@ app.config.from_mapping (
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 )
 
-# db = SQLAlchemy(app)
+db = SQLAlchemy(app)
 
 from .api import api
 app.register_blueprint(api)
