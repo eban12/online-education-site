@@ -1,9 +1,8 @@
-import sys
-sys.path.append("..")
-
 from functools import wraps
 from flask import request
 from app.models import *
+from app import app
+import jwt
 
 def token_required(f):
     @wraps(f)
