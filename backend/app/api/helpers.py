@@ -42,16 +42,16 @@ def build_course_dictionary(course):
         "course_image": course.course_image,
         "created_at": course.created_at.isoformat(' ', 'minutes'),
         "last_updated": course.last_updated.isoformat(' ', 'minutes'),
-        "chapters": [
-            {"chapter_id": chapter.id, "chapter_title": chapter.title} for chapter in course.chapters
-        ]
+        "chapters": [build_chapter_dictionary(chapter) for chapter in course.chapters]
     }
 
 def build_instructors_dictionary(instructor):
     user, inst = instructor
+    return build_user_dictionary(user)
+
+def build_chapter_dictionary(chapter):
     return {
-        "instructor_id": user.public_id,
-        "first_name": user.first_name,
-        "last_name":  user.last_name,
-        "profile_image": user.profile_image
+        "id": chapter.id,
+        "title": chapter.title,
+        "chapter_number": chapter.chapter_number,
     }

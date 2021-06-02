@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from flask_restx import Resource, Api
-from app.api.helpers import build_course_dictionary, token_required, build_instructors_dictionary
+from app.api.helpers import build_course_dictionary, token_required, build_instructors_dictionary, build_chapter_dictionary
 from app.models import *
 import datetime
 
@@ -119,7 +119,64 @@ class CourseInstructor(Resource):
 @courses_api.route('/<int:course_id>/chapters')
 class ChaptersList(Resource):
     def get(self, course_id):
-        pass 
+        course = Course.query.filter_by(id=course_id).first()
+        
+        if not course:
+            return {"message": "Resource not found!"}, 404
+        
+        return {"chapters": [build_chapter_dictionary(chapter) for chapter in course.chapters]}
 
-    def post(self, course_id):
-        pass
+    @token_required
+    def post(self, course_id, current_user):
+        if current_user.role != 'admin' and current_user.role != 'instructor':
+            return {"message": "Can not perform function!"}, 401
+        
+        course = Course.query.filter_by(id=course_id).first()
+        
+        if not course:
+            return {"message": "Resource not found!"}, 404
+
+        data = request.get_json()
+
+        if "chapter_number" not in data or "title" not in data:
+            return {"message": "Missing data!"}, 400
+        
+        new_chapter = Chapter(title=data["title"], chapter_number=data["chapter_number"], course_id=course_id)
+        db.session.add(new_chapter)
+        db.session.commit()
+
+        return {"message": "Chapter has been created!"}
+    
+@courses_api.route('/<int:course_id>/chapters/<int:chapter_id>')
+class ChapterSingle(Resource):
+    def get(self, course_id, chapter_id):
+        chapter = Chapter.query.filter_by(id=chapter_id, course_id=course_id).first()
+        if not chapter:
+            return {"message": "Resource not found!"}, 404
+
+        return {"chapter": build_chapter_dictionary(chapter)}
+        
+    @token_required
+    def put(self, course_id, chapter_id, current_user):
+        if current_user.role != 'admin' and current_user.role != 'instructor':
+            return {"message": "Can not perform function!"}, 401
+        
+        
+        chapter = Chapter.query.filter_by(id=chapter_id, course_id=course_id).first()
+        
+        if not chapter:
+            return {"message": "Resource not found!"}, 404
+
+        data = request.get_json()
+
+        if "title" in data or "chapter_number" in data:
+            chapter.title = data["title"] if "title" in data else chapter.title
+            chapter.chapter_number = data["chapter_number"] if "chapter_number" in data else chapter.chapter_number
+            chapter.course.last_updated = datetime.datetime.now()
+            db.session.commit()
+            return {"message": "Chapter has been updated!"}
+        
+        return {"message": "Missing data!"}, 400
+
+            
+
