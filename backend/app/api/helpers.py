@@ -55,3 +55,11 @@ def build_chapter_dictionary(chapter):
         "title": chapter.title,
         "chapter_number": chapter.chapter_number,
     }
+
+def build_section_dictionary(section):
+    return {
+        "id": section.id,
+        "title": section.title,
+        "content": section.content,
+        "section_number": section.section_number
+    }

@@ -1,11 +1,18 @@
 from flask import Blueprint, request
 from flask_restx import Resource, Api
-from app.api.helpers import build_course_dictionary, token_required, build_instructors_dictionary, build_chapter_dictionary
+from app.api.helpers import build_course_dictionary, token_required
+from app.api.helpers import build_instructors_dictionary, build_chapter_dictionary
+from app.api.helpers import build_section_dictionary
 from app.models import *
 import datetime
 
 courses_bp = Blueprint("courses", __name__, url_prefix="courses")
+chapters_bp = Blueprint("chapters", __name__, url_prefix="/<int:course_id>/chapters")
+
+courses_bp.register_blueprint(chapters_bp)
+
 courses_api = Api(courses_bp)
+chapters_api = Api(chapters_bp)
 
 @courses_api.route('/')
 class CoursesList(Resource):
@@ -116,7 +123,7 @@ class CourseInstructor(Resource):
 
         return {"message": "Instructor has been unassigned from course!"}
 
-@courses_api.route('/<int:course_id>/chapters')
+@chapters_api.route('/')
 class ChaptersList(Resource):
     def get(self, course_id):
         course = Course.query.filter_by(id=course_id).first()
@@ -141,13 +148,16 @@ class ChaptersList(Resource):
         if "chapter_number" not in data or "title" not in data:
             return {"message": "Missing data!"}, 400
         
+
         new_chapter = Chapter(title=data["title"], chapter_number=data["chapter_number"], course_id=course_id)
+        course.last_updated = datetime.datetime.now()
         db.session.add(new_chapter)
         db.session.commit()
 
         return {"message": "Chapter has been created!"}
     
-@courses_api.route('/<int:course_id>/chapters/<int:chapter_id>')
+
+@chapters_api.route('/<int:chapter_id>')
 class ChapterSingle(Resource):
     def get(self, course_id, chapter_id):
         chapter = Chapter.query.filter_by(id=chapter_id, course_id=course_id).first()
@@ -177,6 +187,97 @@ class ChapterSingle(Resource):
             return {"message": "Chapter has been updated!"}
         
         return {"message": "Missing data!"}, 400
+
+
+@chapters_api.route('/<int:chapter_id>/sections')
+class SectionsList(Resource):
+    def get(self, course_id, chapter_id):
+        chapter = Chapter.query.filter_by(id=chapter_id, course_id=course_id).first()
+        if not chapter:
+            return {"message": "Resource not found!"}, 404
+
+        return {"sections": [build_section_dictionary(section) for section in chapter.sections]}
+
+    @token_required
+    def post(self, course_id, chapter_id, current_user):
+        if current_user.role != 'admin' and current_user.role != 'instructor':
+            return {"message": "Can not perform function!"}, 401
+
+        chapter = Chapter.query.filter_by(id=chapter_id, course_id=course_id).first()
+        if not chapter:
+            return {"message": "Resource not found!"}, 404
+        
+        data = request.get_json()
+        required = {"title", "content", "section_number"}
+
+        if set(data.keys()).intersection(required) != required:
+            return {"message": "Missing data!"}, 400
+        
+        new_section = Section(title=data["title"], 
+                                content=data["content"], 
+                                section_number=data["section_number"],
+                                chapter_id=chapter_id)
+        db.session.add(new_section)
+        db.session.commit()
+
+        return {"message": "Section has been created!"}
+
+
+@chapters_api.route('/<int:chapter_id>/sections/<int:section_id>')
+class SectionSingle(Resource):
+    def get(self, course_id, chapter_id, section_id):
+        chapter = Chapter.query.filter_by(id=chapter_id, course_id=course_id).first()
+        if not chapter:
+            return {"message": "Resource not found!"}, 404
+        
+        section = Section.query.filter_by(id=section_id, chapter_id=chapter_id).first()
+        if not section:
+            return {"message": "Resource not found!"}, 404
+        
+        return {"section": build_section_dictionary(section)}
+    
+    @token_required
+    def put(self, course_id, chapter_id, section_id, current_user):
+        if current_user.role != 'admin' and current_user.role != 'instructor':
+            return {"message": "Can not perform function!"}, 401
+        
+        chapter = Chapter.query.filter_by(id=chapter_id, course_id=course_id).first()
+        if not chapter:
+            return {"message": "Resource not found!"}, 404
+        
+        section = Section.query.filter_by(id=section_id, chapter_id=chapter_id).first()
+        if not section:
+            return {"message": "Resource not found!"}, 404
+        
+        data = request.get_json()
+        if "title" in data or "content" in data or "section_number" in data:
+            section.title = data["title"] if "title" in data else section.title
+            section.content = data["content"] if "content" in data else section.content
+            section.section_number = data["section_number"] if "section_number" in data else section.section_number
+            chapter.course.last_updated = datetime.datetime.now()
+            db.session.commit()
+            return {"message": "Section has been updated!"}
+        
+        return {"message": "Missing data!"}, 400
+            
+    @token_required
+    def delete(self, course_id, chapter_id, section_id, current_user):
+        if current_user.role != 'admin' and current_user.role != 'instructor':
+            return {"message": "Can not perform function!"}, 401
+        
+        chapter = Chapter.query.filter_by(id=chapter_id, course_id=course_id).first()
+        if not chapter:
+            return {"message": "Resource not found!"}, 404
+        
+        section = Section.query.filter_by(id=section_id, chapter_id=chapter_id).first()
+        if not section:
+            return {"message": "Resource not found!"}, 404
+        
+        db.session.delete(section)
+        db.session.commit()
+        return {"message": "Section has been deleted!"}
+
+
 
             
 
