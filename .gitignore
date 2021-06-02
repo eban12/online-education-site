@@ -1,7 +1,7 @@
 .DS_Store
 frontend/node_modules
 /dist
-venv
+backend/venv
 
 # local env files
 .env.local
@@ -21,3 +21,7 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+#python cache
+*.pyc
+*.pyo
