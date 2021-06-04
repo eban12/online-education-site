@@ -327,7 +327,7 @@ class CommentSingle(Resource):
         
         db.session.delete(comment)
         db.session.commit()
-        return {"message": "Section has been deleted!"}
+        return {"message": "Comment has been deleted!"}
 
 
 
