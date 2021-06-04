@@ -1,9 +1,7 @@
 from flask import Blueprint, request
 from flask_restx import Resource, Api
-from app.api.helpers import build_course_dictionary, token_required
-from app.api.helpers import build_instructors_dictionary, build_chapter_dictionary
-from app.api.helpers import build_section_dictionary
-from app.models import *
+from app.api.helpers import *
+# from app.models import *
 import datetime
 
 courses_bp = Blueprint("courses", __name__, url_prefix="courses")
@@ -278,6 +276,58 @@ class SectionSingle(Resource):
         return {"message": "Section has been deleted!"}
 
 
+@chapters_api.route('/<int:chapter_id>/sections/<int:section_id>/comments')
+class CommentsList(Resource):
+    def get(self, course_id, chapter_id, section_id):
+        chapter = Chapter.query.filter_by(id=chapter_id, course_id=course_id).first()
+        if not chapter:
+            return {"message": "Resource not found!"}, 404
+        
+        section = Section.query.filter_by(id=section_id, chapter_id=chapter_id).first()
+        if not section:
+            return {"message": "Resource not found!"}, 404
+        
+        return {"comments": [build_comment_dictionary(comment) for comment in section.comments]}
 
+    @token_required
+    def post(self, course_id, chapter_id, section_id, current_user):
+        chapter = Chapter.query.filter_by(id=chapter_id, course_id=course_id).first()
+        if not chapter:
+            return {"message": "Resource not found!"}, 404
+        
+        section = Section.query.filter_by(id=section_id, chapter_id=chapter_id).first()
+        if not section:
+            return {"message": "Resource not found!"}, 404
+        
+        data = request.get_json()
+        if "text" not in data:
+            return {"message": "Missing data!"}, 400
+
+
+        new_comment = Comment(text=data["text"], user_id=current_user.id, section_id=section_id, date=datetime.datetime.now())
+        db.session.add(new_comment)
+        db.session.commit()
+        return {"message": "Comment has been created!"}
             
+
+@chapters_api.route('/<int:chapter_id>/sections/<int:section_id>/comments/<int:comment_id>')
+class CommentSingle(Resource):
+    @token_required
+    def delete(self, course_id, chapter_id, section_id, comment_id, current_user):
+        if current_user.role != 'admin':
+            return {"message": "Can not perform function!"}, 401
+        
+        chapter = Chapter.query.filter_by(id=chapter_id, course_id=course_id).first()
+        if not chapter:
+            return {"message": "Resource not found!"}, 404
+        
+        comment = Comment.query.filter_by(id=comment_id, section_id=section_id).first()
+        if not comment:
+            return {"message": "Resource not found!"}, 404
+        
+        db.session.delete(comment)
+        db.session.commit()
+        return {"message": "Section has been deleted!"}
+
+
 

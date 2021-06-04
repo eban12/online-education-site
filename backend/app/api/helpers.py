@@ -54,6 +54,7 @@ def build_chapter_dictionary(chapter):
         "id": chapter.id,
         "title": chapter.title,
         "chapter_number": chapter.chapter_number,
+        "sections": [build_section_dictionary(section) for section in chapter.sections]
     }
 
 def build_section_dictionary(section):
@@ -61,5 +62,15 @@ def build_section_dictionary(section):
         "id": section.id,
         "title": section.title,
         "content": section.content,
-        "section_number": section.section_number
+        "section_number": section.section_number,
+        "commnets": [build_comment_dictionary(comment) for comment in section.comments]
+    }
+
+def build_comment_dictionary(comment):
+    return {
+        "id": comment.id,
+        "first_name": comment.user.first_name,
+        "last_name": comment.user.last_name,
+        "text": comment.text,
+        "date": comment.date.isoformat(' ', 'minutes')
     }
