@@ -75,3 +75,10 @@ def build_comment_dictionary(comment):
         "text": comment.text,
         "date": comment.date.isoformat(' ', 'minutes')
     }
+
+def build_pregress_dictionary(progress):
+    return {
+        "id": progress.id,
+        "course": build_course_dictionary(progress.course),
+        "current_section": build_section_dictionary(progress.section)
+    }

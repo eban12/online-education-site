@@ -13,3 +13,6 @@ api.register_blueprint(auth_bp)
 
 from .courses_route import courses_bp
 api.register_blueprint(courses_bp)
+
+from .progress_route import progress_bp
+api.register_blueprint(progress_bp)
