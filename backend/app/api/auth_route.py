@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, make_response
 from flask_restx import Resource, Api
 from werkzeug.security import check_password_hash
 from app.models import User
@@ -25,7 +25,7 @@ class Auth(Resource):
         if check_password_hash(user.password, auth.password):
             token = jwt.encode({
                         'public_id': user.public_id,
-                        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)     
+                        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=120)     
                     }, app.config['SECRET_KEY'], algorithm="HS256")
             return {"token": token}
         
