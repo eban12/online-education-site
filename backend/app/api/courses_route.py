@@ -69,7 +69,16 @@ class CourseSingle(Resource):
 
     @token_required
     def delete(self, course_id, current_user):
-        pass
+        if current_user.role != 'admin':
+            return {"message": "Can not perform function!"}, 401
+        
+        course = Course.query.filter_by(id=course_id).first()
+        if not course:
+            return {"message": "Resource not found!"}, 404
+
+        db.session.delete(course)
+        db.session.commit()
+        return {"message": "Course has been deleted!"}
 
 @courses_api.route('/<int:course_id>/instructors')
 class CourseInstructors(Resource):
@@ -146,7 +155,6 @@ class ChaptersList(Resource):
         if "chapter_number" not in data or "title" not in data:
             return {"message": "Missing data!"}, 400
         
-
         new_chapter = Chapter(title=data["title"], chapter_number=data["chapter_number"], course_id=course_id)
         course.last_updated = datetime.datetime.now()
         db.session.add(new_chapter)
@@ -169,7 +177,6 @@ class ChapterSingle(Resource):
         if current_user.role != 'admin' and current_user.role != 'instructor':
             return {"message": "Can not perform function!"}, 401
         
-        
         chapter = Chapter.query.filter_by(id=chapter_id, course_id=course_id).first()
         
         if not chapter:
@@ -185,6 +192,20 @@ class ChapterSingle(Resource):
             return {"message": "Chapter has been updated!"}
         
         return {"message": "Missing data!"}, 400
+    
+    @token_required
+    def delete(self, course_id, chapter_id, current_user):
+        if current_user.role != 'admin' and current_user.role != 'instructor':
+            return {"message": "Can not perform function!"}, 401
+        
+        chapter = Chapter.query.filter_by(id=chapter_id, course_id=course_id).first()
+        
+        if not chapter:
+            return {"message": "Resource not found!"}, 404
+
+        db.session.delete(chapter)
+        db.session.commit()
+        return {"message": "Chapter has been deleted!"}        
 
 
 @chapters_api.route('/<int:chapter_id>/sections')
