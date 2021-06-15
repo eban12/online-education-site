@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash
 import os
+import uuid
 
 app = Flask(__name__)
 
@@ -22,7 +23,7 @@ app.register_blueprint(api)
 @app.cli.command("init_admin")
 def init_admin():
     from app.models import User
-    admin = User(first_name="John", last_name="Doe", email="admin@admin.com", password=generate_password_hash("adminPass"))
+    admin = User(public_id=str(uuid.uuid4()), first_name="John", last_name="Doe", email="admin@admin.com", role='admin', password=generate_password_hash("adminPass"))
     try:
         db.session.add(admin)
         db.session.commit()
