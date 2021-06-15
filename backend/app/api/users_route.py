@@ -3,6 +3,8 @@ from flask_restx import Resource, Api
 from werkzeug.security import generate_password_hash
 from app.api.helpers import *
 from app.models import *
+from sqlalchemy import exc
+from psycopg2.errors import UniqueViolation
 import uuid
 
 users_bp = Blueprint('users', __name__, url_prefix='users')
@@ -35,8 +37,13 @@ class UsersList(Resource):
                         email=data['email'], 
                         password=hashed_password, 
                         role='student')
-        db.session.add(new_user)
-        db.session.commit()
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+        except exc.IntegrityError as e:
+            if isinstance(e.orig, UniqueViolation):
+                return {"message": "Email already exists"}, 400
+            return {"message": "Invalid data!"}, 400
         return {"message": "New user created!"}
 
 @users_api.route('/<public_id>')
@@ -65,11 +72,13 @@ class UserSingle(Resource):
         if current_user.public_id != public_id:
             return {"message": "Can not perform function!"}, 401
         
-        hashed_password = generate_password_hash(data['password'], method='sha256')
-        user['first_name'] = data['first_name'] 
-        user['last_name'] = data['last_name'] 
-        user['email'] = data['email'] 
-        user['password'] = hashed_password 
+        if 'password' in data:
+            hashed_password = generate_password_hash(data.get('password'), method='sha256')
+            user.password = hashed_password
+ 
+        user.first_name = data.get('first_name', user.first_name) 
+        user.last_name = data.get('last_name', user.last_name) 
+        user.profile_image = data.get('profile_image', user.profile_image)
 
         db.session.commit()
 
@@ -119,6 +128,11 @@ class InstructorsList(Resource):
                         email=data['email'], 
                         password=hashed_password, 
                         role='instructor')
-        db.session.add(new_user)
-        db.session.commit()
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+        except exc.IntegrityError as e:
+            if isinstance(e.orig, UniqueViolation):
+                return {"message": "Email already exists"}, 400
+            return {"message": "Invalid data!"}, 400
         return {"message": "New user created!"}
