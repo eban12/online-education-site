@@ -17,6 +17,8 @@ def token_required(f):
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms="HS256")
             current_user = User.query.filter_by(public_id=data['public_id']).first()
+            if not current_user:
+                raise Exception()
         except:
             return {"message": "Invalid token!"}, 401
         return f(*args, **kwargs, current_user=current_user)
@@ -46,8 +48,7 @@ def build_course_dictionary(course):
     }
 
 def build_instructors_dictionary(instructor):
-    user, inst = instructor
-    return build_user_dictionary(user)
+    return build_user_dictionary(instructor)
 
 def build_chapter_dictionary(chapter):
     return {

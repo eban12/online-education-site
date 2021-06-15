@@ -106,7 +106,7 @@ class InstructorsList(Resource):
         if current_user.role != 'admin':
             return {"message": "Can not perform function!"}, 401
         
-        instructors = db.session.query(User, Instructors).join(User).all()
+        instructors = User.query.filter_by(role="instructor").all()
         return {"instructors": [build_instructors_dictionary(instructor) for instructor in instructors]}
 
 
