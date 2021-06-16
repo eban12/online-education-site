@@ -4,8 +4,10 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash
 import os
 import uuid
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 app.config.from_mapping (
     SECRET_KEY = 'secretkey',
