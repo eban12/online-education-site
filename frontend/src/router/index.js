@@ -5,6 +5,7 @@ import About from "../views/About.vue";
 import Register from "../views/Register.vue";
 import Course from "../views/Course.vue";
 import Login from "../views/Login.vue";
+import Admin from "../views/Admin.vue";
 
 Vue.use(VueRouter);
 
@@ -45,6 +46,11 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited
     component: Course
+  },
+  {
+    path: "/admin",
+    name: "admin",
+    component: Admin
   }
 ];
 
