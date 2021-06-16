@@ -1,12 +1,10 @@
 <template>
   <v-app>
-    <v-app-bar
-      app
-      color="blue-grey darken-2"
-      flat
-      dark
-    >
-      <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
+    <v-app-bar app color="blue-grey darken-2" flat dark>
+      <v-app-bar-nav-icon
+        @click="drawer = true"
+        v-if="user"
+      ></v-app-bar-nav-icon>
 
       <div class="d-flex align-center">
         <v-img
@@ -21,49 +19,29 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn
-        to="/"
-        text
-      >
+      <v-btn to="/" text>
         <span class="mr-2">Home</span>
       </v-btn>
-      <v-btn
-        to="/courses"
-        text
-      >
+      <v-btn to="/courses" text>
         <span class="mr-2">Courses</span>
       </v-btn>
-      <v-btn
-        to="/login"
-        text
-      >
+      <v-btn to="/login" text v-if="!user">
         <span class="mr-2">Login</span>
       </v-btn>
-      <v-btn
-        to="/register"
-        text
-      >
+      <v-btn to="/register" text v-if="!user">
         <span class="mr-2">Register</span>
+      </v-btn>
+      <v-btn text v-else>
+        <span class="mr-2" @click="logout">Logout</span>
       </v-btn>
     </v-app-bar>
 
-    <v-navigation-drawer
-      v-model="drawer"
-      absolute
-      temporary
-    >
-      <v-list
-        nav
-        dense
-      >
-
+    <v-navigation-drawer v-model="drawer" absolute temporary>
+      <v-list nav dense>
         <v-list-item-group class="text-center">
           <v-list-item>
             <v-avatar>
-              <img
-                src="https://cdn.vuetifyjs.com/images/john.jpg"
-                alt="John"
-              >
+              <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John" />
             </v-avatar>
           </v-list-item>
           <v-list-item>
@@ -100,16 +78,26 @@
     </v-navigation-drawer>
 
     <v-main>
-      <router-view/>
+      <router-view />
     </v-main>
   </v-app>
 </template>
 
 <script>
-
 export default {
-  name: 'App',
-
+  name: "App",
+  computed: {
+    user() {
+      this.$store.dispatch("fetchUser");
+      return this.$store.state.user;
+    },
+  },
+  methods: {
+    logout() {
+      localStorage.setItem("token", "");
+      localStorage.setItem("userId", "");
+    },
+  },
   data: () => ({
     drawer: false,
     group: null,

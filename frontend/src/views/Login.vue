@@ -61,6 +61,8 @@ export default {
           })
           .then((res) => {
             localStorage.setItem("token", res.data.token);
+            localStorage.setItem("publicId", res.data.user_id);
+            this.$store.dispatch("fetchUser");
             this.$router.push("/");
           })
           .catch((e) => {
