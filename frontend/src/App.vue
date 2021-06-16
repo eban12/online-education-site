@@ -90,7 +90,6 @@ export default {
   name: "App",
   computed: {
     user() {
-      this.$store.dispatch("fetchUser");
       return this.$store.state.user;
     },
   },
@@ -106,5 +105,9 @@ export default {
     drawer: false,
     group: null,
   }),
+  async mounted() {
+    await this.$store.dispatch("fetchUser");
+    console.log("here");
+  },
 };
 </script>
