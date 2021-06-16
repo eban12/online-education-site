@@ -14,7 +14,7 @@
         <h1>Users</h1>
       </v-tab-item>
       <v-tab-item>
-        <h1>Instructors</h1>
+        <InstructorsTable />
       </v-tab-item>
     </v-tabs>
   </v-card>
@@ -22,9 +22,12 @@
 
 <script>
 import CoursesTable from "../components/CoursesTable.vue";
+import InstructorsTable from "../components/InstructorsTable.vue";
+
 export default {
   components: {
     CoursesTable,
+    InstructorsTable,
   },
 };
 </script>
