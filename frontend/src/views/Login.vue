@@ -43,6 +43,21 @@ import axios from "axios";
 
 export default {
   methods: {
+    async redirectBasedOnUser() {
+      this.$store.dispatch("fetchUser").then(() => {
+        const user = this.$store.state.user;
+        switch (user.role) {
+          case "student":
+            this.$router.push("/");
+            break;
+          case "admin":
+            this.$router.push("/admin");
+            break;
+          default:
+            this.$router.push("/instructor");
+        }
+      });
+    },
     login() {
       if (this.$refs.form.validate()) {
         const authUrl = "http://localhost:5000/api/auth/";
@@ -59,11 +74,10 @@ export default {
               )}`,
             },
           })
-          .then((res) => {
+          .then(async (res) => {
             localStorage.setItem("token", res.data.token);
             localStorage.setItem("publicId", res.data.user_id);
-            this.$store.dispatch("fetchUser");
-            this.$router.push("/");
+            this.redirectBasedOnUser();
           })
           .catch((e) => {
             if (e.response.status === 401) {

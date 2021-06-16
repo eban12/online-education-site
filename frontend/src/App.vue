@@ -45,7 +45,9 @@
             </v-avatar>
           </v-list-item>
           <v-list-item>
-            <v-list-item-title>John Doe</v-list-item-title>
+            <v-list-item-title>{{
+              user ? `${user.first_name} ${user.last_name}` : ""
+            }}</v-list-item-title>
           </v-list-item>
         </v-list-item-group>
 
@@ -93,9 +95,11 @@ export default {
     },
   },
   methods: {
-    logout() {
+    async logout() {
       localStorage.setItem("token", "");
-      localStorage.setItem("userId", "");
+      localStorage.setItem("publicId", "");
+
+      this.$router.push("/").catch(() => {});
     },
   },
   data: () => ({

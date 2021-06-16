@@ -24,22 +24,20 @@ export default new Vuex.Store({
       context.commit("setToken", token);
     },
 
-    fetchUser(context) {
+    async fetchUser(context) {
       context.dispatch("fetchToken");
       const publicId = localStorage.getItem("publicId");
       const url = `http://localhost:5000/api/users/${publicId}`;
-      axios
-        .get(url, {
+      try {
+        const res = await axios.get(url, {
           headers: {
             "x-access-token": context.state["x-access-token"]
           }
-        })
-        .then(res => {
-          context.commit("setUser", res.data.user);
-        })
-        .catch(e => {
-          context.commit("setUser", null);
         });
+        context.commit("setUser", res.data.user);
+      } catch (error) {
+        context.commit("setUser", null);
+      }
     }
   },
   modules: {}
