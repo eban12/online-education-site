@@ -1,25 +1,118 @@
 <template>
-  <div class="app">
-    <Header />
-    <router-link to="/"></router-link>
-    <router-link to="/about"></router-link>
-    <router-link to="/signup"></router-link>
+  <v-app>
+    <v-app-bar
+      app
+      color="blue-grey darken-2"
+      flat
+      dark
+    >
+      <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
 
-    <router-view />
-    <Footer />
-  </div>
+      <div class="d-flex align-center">
+        <v-img
+          alt="Vuetify Name"
+          class="shrink mt-1 mr-4 hidden-md-and-down"
+          contain
+          min-width="100"
+          src="./assets/img/logo-nav.png"
+          width="100"
+        />
+      </div>
+
+      <v-spacer></v-spacer>
+
+      <v-btn
+        to="/"
+        text
+      >
+        <span class="mr-2">Home</span>
+      </v-btn>
+      <v-btn
+        to="/courses"
+        text
+      >
+        <span class="mr-2">Courses</span>
+      </v-btn>
+      <v-btn
+        to="/login"
+        text
+      >
+        <span class="mr-2">Login</span>
+      </v-btn>
+      <v-btn
+        to="/register"
+        text
+      >
+        <span class="mr-2">Register</span>
+      </v-btn>
+    </v-app-bar>
+
+    <v-navigation-drawer
+      v-model="drawer"
+      absolute
+      temporary
+    >
+      <v-list
+        nav
+        dense
+      >
+
+        <v-list-item-group class="text-center">
+          <v-list-item>
+            <v-avatar>
+              <img
+                src="https://cdn.vuetifyjs.com/images/john.jpg"
+                alt="John"
+              >
+            </v-avatar>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-title>John Doe</v-list-item-title>
+          </v-list-item>
+        </v-list-item-group>
+
+        <v-list-item-group
+          v-model="group"
+          active-class="deep-purple--text text--accent-4"
+          class="mt-4"
+        >
+          <v-list-item>
+            <v-list-item-icon>
+              <v-icon>mdi-home</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Home</v-list-item-title>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-icon>
+              <v-icon>mdi-home</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>My Courses</v-list-item-title>
+          </v-list-item>
+
+          <v-list-item>
+            <v-list-item-icon>
+              <v-icon>mdi-account</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Account</v-list-item-title>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
+    </v-navigation-drawer>
+
+    <v-main>
+      <router-view/>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
-import Header from './components/Header.vue'
-import Footer from './components/footer.vue'
 
 export default {
   name: 'App',
-  components: {
-    Header,
-    Footer
-  }
-}
+
+  data: () => ({
+    drawer: false,
+    group: null,
+  }),
+};
 </script>
-<style></style>
