@@ -27,7 +27,10 @@ class Auth(Resource):
                         'public_id': user.public_id,
                         'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=120)     
                     }, app.config['SECRET_KEY'], algorithm="HS256")
-            return {"token": token}
+            return {
+                    "token": token, 
+                    "user_id": user.public_id
+                }
         
         return make_response("Could not verify", 401, {'WWW-Authenticate': 'Basic realm="Login required"'})
 
