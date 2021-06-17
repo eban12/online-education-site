@@ -9,17 +9,21 @@
       <v-tab-item>
         <ChaptersTable />
       </v-tab-item>
-      <v-tab-item> </v-tab-item>
+      <v-tab-item>
+        <SectionsTable />
+      </v-tab-item>
     </v-tabs>
   </v-card>
 </template>
 
 <script>
 import ChaptersTable from "../components/ChaptersTable.vue";
+import SectionsTable from "../components/SectionsTable.vue";
 
 export default {
   components: {
     ChaptersTable,
+    SectionsTable,
   },
 };
 </script>

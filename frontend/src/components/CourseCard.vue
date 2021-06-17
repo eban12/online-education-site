@@ -1,22 +1,19 @@
 <template>
-  <v-card
-    max-width="350"
-    outlined
-  >
+  <v-card max-width="350" outlined>
     <v-img
       class="white--text align-end"
       height="200px"
-      src="https://cdn.vuetifyjs.com/images/cards/docks.jpg"
+      :src="
+        course.course_image
+          ? course.course_image
+          : `https://cdn.vuetifyjs.com/images/cards/docks.jpg`
+      "
     >
       <v-card-title>{{ course.name }}</v-card-title>
     </v-img>
 
     <v-card-actions>
-      <v-btn
-        color="orange"
-        text
-        :to="`/course/${course.id}`"
-      >
+      <v-btn color="orange" text :to="`/course/${course.id}`">
         Take Course
       </v-btn>
     </v-card-actions>
@@ -24,10 +21,10 @@
 </template>
 
 <script>
-  export default {
-      name: 'CourseCard',
-      props: ['course']
-  }
+export default {
+  name: "CourseCard",
+  props: ["course"],
+};
 </script>
 
 
