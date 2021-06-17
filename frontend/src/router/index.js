@@ -6,6 +6,7 @@ import Register from "../views/Register.vue";
 import Course from "../views/Course.vue";
 import Login from "../views/Login.vue";
 import Admin from "../views/Admin.vue";
+import Instructor from "../views/Instructor.vue";
 
 Vue.use(VueRouter);
 
@@ -51,6 +52,11 @@ const routes = [
     path: "/admin",
     name: "admin",
     component: Admin
+  },
+  {
+    path: "/instructor",
+    name: "instructor",
+    component: Instructor
   }
 ];
 

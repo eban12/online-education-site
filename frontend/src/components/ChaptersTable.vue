@@ -1,6 +1,17 @@
 <template>
   <v-card>
     <v-card-title>
+      <v-select
+        v-model="selectedCourse"
+        :items="courses"
+        item-text="name"
+        item-value="id"
+        label="Course"
+        return-object
+        single-line
+        class="mr-12"
+        @input="fetchChapters"
+      ></v-select>
       <v-text-field
         v-model="search"
         append-icon="mdi-magnify"
@@ -8,17 +19,15 @@
         single-line
         hide-details
       ></v-text-field>
-      <v-btn color="success" class="ml-4" @click="openModal">Add Course</v-btn>
+      <v-btn
+        color="success"
+        class="ml-4"
+        @click="openModal"
+        v-if="selectedCourse"
+        >Add Chapter</v-btn
+      >
     </v-card-title>
-    <v-data-table
-      :headers="headers"
-      :items="courses"
-      :search="search"
-      @click:row="clickRow"
-    >
-      <v-alert slot="no-results" :value="true" color="error" icon="mdi-warning">
-        Your search for "{{ search }}" found no results.
-      </v-alert>
+    <v-data-table :headers="headers" :items="chapters" :search="search">
     </v-data-table>
 
     <v-dialog v-model="dialog" persistent max-width="600px">
@@ -32,31 +41,20 @@
               <v-row>
                 <v-col cols="12">
                   <v-text-field
-                    label="Course name*"
-                    :rules="[required]"
-                    v-model="courseName"
+                    v-model="title"
+                    :rules="[rules.required]"
+                    label="Title*"
+                    required
                   ></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <v-textarea
-                    rows="3"
-                    label="Description"
-                    v-model="courseDesc"
-                  ></v-textarea>
                 </v-col>
                 <v-col cols="12">
                   <v-text-field
-                    label="Course image"
-                    v-model="courseImage"
+                    v-model="chapter_number"
+                    :rules="[rules.required]"
+                    label="Chapter Number*"
+                    type="number"
+                    required
                   ></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <v-select
-                    :items="instructors"
-                    label="Instructors"
-                    multiple
-                    v-model="courseInstructors"
-                  ></v-select>
                 </v-col>
               </v-row>
             </v-form>
@@ -68,14 +66,10 @@
           <v-btn color="blue darken-1" text @click="dialog = false">
             Close
           </v-btn>
-          <v-btn color="blue darken-1" text @click="saveCourse"> Save </v-btn>
+          <v-btn color="blue darken-1" text @click="save"> Save </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-
-    <!-- <v-dialog>
-
-    </v-dialog> -->
   </v-card>
 </template>
 
@@ -84,10 +78,6 @@ import axios from "axios";
 
 export default {
   methods: {
-    openModal() {
-      this.modalTitle = "Add new course";
-      this.dialog = true;
-    },
     fetchCourses() {
       let url = "http://localhost:5000/api/courses";
       axios
@@ -100,31 +90,29 @@ export default {
           return [];
         });
     },
-    fetchInctructors() {
-      let url = "http://localhost:5000/api/instructors/";
+    fetchChapters() {
+      const url = `http://localhost:5000/api/courses/${this.selectedCourse["id"]}/chapters`;
       axios
-        .get(url, {
-          headers: {
-            "x-access-token": this.$store.state["x-access-token"],
-          },
-        })
+        .get(url)
         .then((res) => {
-          this.instructors = res.data.instructors;
+          this.chapters = res.data.chapters;
         })
         .catch((e) => {
-          return [];
+          console.log(e);
         });
     },
-    saveCourse() {
+    openModal() {
+      this.dialog = true;
+    },
+    save() {
       if (this.$refs.form.validate()) {
-        const url = "http://localhost:5000/api/courses/";
+        const url = `http://localhost:5000/api/courses/${this.selectedCourse["id"]}/chapters/`;
         axios
           .post(
             url,
             {
-              name: this.courseName,
-              description: this.courseDesc,
-              course_image: this.courseImage,
+              title: this.title,
+              chapter_number: this.chapter_number,
             },
             {
               headers: {
@@ -133,7 +121,7 @@ export default {
             }
           )
           .then((res) => {
-            this.fetchCourses();
+            this.fetchChapters();
             this.dialog = false;
           })
           .catch((e) => {
@@ -141,33 +129,39 @@ export default {
           });
       }
     },
-    clickRow(item, _) {
-      console.log(item);
-    },
   },
   data() {
     return {
       dialog: false,
-      modalTitle: "Add new course",
-      search: "",
-      courseName: "",
-      courseDesc: "",
-      courseImage: "",
+      modalTitle: "Add new Instructor",
+      show: false,
+      title: "",
+      chapter_number: "",
+      error: "",
+      alert: false,
       courses: [],
-      instructors: [],
-      courseInstructors: "",
-      required: (v) => !!v || "Required.",
+      chapters: [],
+      selectedCourse: null,
+      search: "",
+      rules: {
+        required: (v) => !!v || "Required.",
+        min: (v) => v.length >= 8 || "Min 8 characters",
+        emailRule: (v) => /.+@.+/.test(v) || "E-mail must be valid",
+      },
       headers: [
         { text: "Id", align: "start", value: "id" },
         {
-          text: "Name",
-          value: "name",
+          text: "Title",
+          value: "title",
         },
-        { text: "Description", value: "description" },
+        {
+          text: "Chapter Number",
+          value: "chapter_number",
+        },
       ],
     };
   },
-  async mounted() {
+  mounted() {
     this.fetchCourses();
   },
 };
